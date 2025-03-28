@@ -95,9 +95,39 @@
             top: 25px;
             transition: transform 0.1s;
         }
+        #shootButton {
+            position: fixed;
+            left: calc(50vw - 285px); /* Рассчитано под ширину экрана 375px (iPhone SE) */
+            bottom: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 165, 0, 0.5);
+            border: 2px solid #ffa500;
+            display: none;
+            cursor: pointer;
+            z-index: 99;
+            touch-action: manipulation;
+        }
+
+        #shootButton::after {
+            content: "🔫";
+            font-size: 24px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            #shootButton {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
+    <div id="shootButton"></div>
     <div id="score">Score: 0</div>
     
     <div id="menu">
@@ -183,6 +213,28 @@
             document.addEventListener('keydown', function(e) {
                 if(e.code === 'Space') shoot();
             });
+
+            // Инициализация кнопки стрельбы
+            const shootButton = document.getElementById('shootButton');
+            shootButton.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                shoot();
+            });
+            
+            // Обновление позиции кнопки при ресайзе
+            window.addEventListener('resize', updateShootButtonPosition);
+            updateShootButtonPosition();
+        }
+
+        // Функция для обновления позиции кнопки стрельбы
+        function updateShootButtonPosition() {
+            const shootButton = document.getElementById('shootButton');
+            // Рассчитываем позицию относительно видимой области корабля
+            const cameraZ = camera.position.z;
+            const viewWidth = (cameraZ * Math.tan(THREE.MathUtils.degToRad(camera.fov/2))) * 2;
+            const leftBound = -viewWidth/2 * window.innerWidth / window.innerHeight;
+            
+            shootButton.style.left = `${window.innerWidth/2 + leftBound * 100 + 20}px`;
         }
 
         // Load spaceship model
