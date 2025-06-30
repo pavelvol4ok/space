@@ -418,8 +418,6 @@
                 // Загружаем статистику
                 await loadStats();
                 
-                // Показываем рекламу через 5 секунд после загрузки
-                setTimeout(showBannerAd, 5000);
                 
                 console.log('VK Bridge инициализирован');
             } catch (error) {
@@ -502,30 +500,29 @@
             }
         }
         
-        // Показ баннерной рекламы
-        function showBannerAd() {
-            const banner = document.getElementById('bannerAd');
-            banner.style.display = 'block';
-            console.log('Показ баннерной рекламы');
-            
-            // Автоматическое скрытие через 10 секунд
-            setTimeout(hideBannerAd, 10000);
-        }
+// Показ баннера рекламы
+function showBannerAd() {
+    vkBridge.send("VKWebAppShowBannerAd")
+        .then(response => {
+            console.log('Баннерная реклама показана:', response);
+        })
+        .catch(error => {
+            console.error('Ошибка при показе баннерной рекламы:', error);
+        });
+}
+
+// Скрытие баннера рекламы
+function hideBannerAd() {
+    vkBridge.send("VKWebAppHideBannerAd")
+        .then(response => {
+            console.log('Баннерная реклама скрыта:', response);
+        })
+        .catch(error => {
+            console.error('Ошибка при скрытии баннерной рекламы:', error);
+        });
+}
         
-        // Скрытие баннерной рекламы
-        function hideBannerAd() {
-            const banner = document.getElementById('bannerAd');
-            banner.style.display = 'none';
-            console.log('Скрытие баннерной рекламы');
-        }
-        
-        // Показ полноэкранной рекламы
-        function showFullscreenAd() {
-            console.log('Показ полноэкранной рекламы');
-            // Здесь будет логика показа рекламы
-            // В демо-режиме просто показываем сообщение
-            alert("Реклама: Поддержите разработчиков!");
-        }
+
         
         // Поделиться результатом
         async function shareResult() {
@@ -862,8 +859,7 @@
             document.getElementById('gameOver').style.display = 'none';
             updateScore();
             
-            // Скрываем рекламу при старте игры
-            hideBannerAd();
+            showBannerAd();
         }
 
         function endGame() {
@@ -880,13 +876,8 @@
             
             document.getElementById('gameOver').style.display = 'block';
             document.getElementById('finalScore').textContent = score;
+            showBannerAd();
             
-            // Показываем рекламу после завершения игры
-            setTimeout(showBannerAd, 2000);
-            // Показываем полноэкранную рекламу с вероятностью 30%
-            if (Math.random() < 0.3) {
-                setTimeout(showFullscreenAd, 3000);
-            }
         }
 
         function showMenu() {
@@ -899,9 +890,8 @@
             document.getElementById('stats').style.display = 'none';
             gameStarted = false;
             if(ship) ship.position.set(0, 0, 0);
-            
-            // Показываем рекламу в меню
-            setTimeout(showBannerAd, 1000);
+            showBannerAd();
+
         }
 
         function showStats() {
